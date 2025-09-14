@@ -339,12 +339,26 @@ export default function EarningsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-[400px] flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <PieChart className="h-12 w-12 mx-auto mb-4" />
-                        <p>Pie chart temporarily disabled during build</p>
-                        <p className="text-sm">Space earnings will be shown here</p>
-                      </div>
+                    <div className="h-[400px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={mockSpaceEarnings}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percentage }) => `${name}: ${percentage}%`}
+                            outerRadius={120}
+                            fill="#8884d8"
+                            dataKey="earnings"
+                          >
+                            {mockSpaceEarnings.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, 'Earnings']} />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
                     </div>
                   </CardContent>
                 </Card>

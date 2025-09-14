@@ -1,19 +1,19 @@
 # 🏢 FanPit - AI-Powered Space Booking Platform
 
-<img width="1440" height="816" alt="Screenshot 2025-09-14 at 7 20 49 PM" src="https://github.com/user-attachments/assets/9a48df9a-35ca-4e7f-8116-247f832bdea9" />
-<img width="1440" height="813" alt="Screenshot 2025-09-14 at 7 21 10 PM" src="https://github.com/user-attachments/assets/2ad7637f-0b91-4f30-b0b8-fdc296ffc6a1" />
-<img width="1439" height="807" alt="Screenshot 2025-09-14 at 7 21 26 PM" src="https://github.com/user-attachments/assets/3bb50fd5-968c-4fbb-a25d-ae4f9e298d75" />
-
-
-
 <div align="center">
 
-![FanPit Logo](https://via.placeholder.com/400x120/4F46E5/FFFFFF?text=FanPit)
+**Backend Repository:** **[https://github.com/arjunthilak05/fanpit-backend](https://github.com/arjunthilak05/fanpit-backend)**
+
+<img width="1440" height="816" alt="Screenshot 2025-09-14 at 7 20 49 PM" src="https://github.com/user-attachments/assets/5e484eb9-dbae-4b20-9edf-49926b6a1746" />
+<img width="1440" height="813" alt="Screenshot 2025-09-14 at 7 21 10 PM" src="https://github.com/user-attachments/assets/fa640299-4773-4f9a-abdc-ce2a435d4ee0" />
+<img width="1439" height="807" alt="Screenshot 2025-09-14 at 7 21 26 PM" src="https://github.com/user-attachments/assets/e46ab35d-696a-4bce-9d2a-7bbc8e0c0569" />
+
+
 
 **Discover • Book • Experience**
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourorg/fanpit-frontend)
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Site-4F46E5?style=for-the-badge)](https://fanpit.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Site-4F46E5?style=for-the-badge)](fanpit-frontend-g418-git-main-arjuns-projects-8b69300d.vercel.app)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)
@@ -22,6 +22,15 @@
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat&logo=vercel&logoColor=white)
 
 </div>
+
+---
+
+## 📱 Platform Screenshots
+
+The screenshots above showcase FanPit's key features:
+- **🏠 Homepage & Space Discovery** - Clean, intuitive interface for browsing available spaces
+- **🤖 AI-Powered Agent Interface** - Interactive AI assistant for personalized space recommendations  
+- **📅 Smart Booking System** - Streamlined booking process with real-time availability
 
 ---
 
