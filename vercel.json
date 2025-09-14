@@ -4,12 +4,10 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_API_URL": "@fanpit-backend-url",
     "NEXT_PUBLIC_APP_ENV": "production"
   },
   "build": {
     "env": {
-      "NEXT_PUBLIC_API_URL": "@fanpit-backend-url",
       "NEXT_PUBLIC_APP_ENV": "production"
     }
   },
