@@ -4,6 +4,12 @@
 
 **Backend Repository:** **[https://github.com/arjunthilak05/fanpit-backend](https://github.com/arjunthilak05/fanpit-backend)**
 
+<img width="1440" height="816" alt="Screenshot 2025-09-14 at 7 20 49 PM" src="https://github.com/user-attachments/assets/5e484eb9-dbae-4b20-9edf-49926b6a1746" />
+<img width="1440" height="813" alt="Screenshot 2025-09-14 at 7 21 10 PM" src="https://github.com/user-attachments/assets/fa640299-4773-4f9a-abdc-ce2a435d4ee0" />
+<img width="1439" height="807" alt="Screenshot 2025-09-14 at 7 21 26 PM" src="https://github.com/user-attachments/assets/e46ab35d-696a-4bce-9d2a-7bbc8e0c0569" />
+
+
+
 **Discover • Book • Experience**
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourorg/fanpit-frontend)
