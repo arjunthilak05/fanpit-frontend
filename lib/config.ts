@@ -21,6 +21,13 @@ export const config = {
     key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || 'rzp_test_RHCtm0tnz9yjuE',
   },
 
+  // OpenRouter AI Configuration
+  openrouter: {
+    apiKey: process.env.OPENROUTER_API_KEY || '',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    defaultModel: 'openrouter/sonoma-sky-alpha',
+  },
+
   // Feature Flags
   features: {
     analytics: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true',
@@ -114,6 +121,7 @@ export type Config = typeof config;
 export type ApiConfig = typeof config.api;
 export type AppConfig = typeof config.app;
 export type RazorpayConfig = typeof config.razorpay;
+export type OpenRouterConfig = typeof config.openrouter;
 export type FeaturesConfig = typeof config.features;
 export type UploadConfig = typeof config.upload;
 export type CacheConfig = typeof config.cache;
