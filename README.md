@@ -1,5 +1,11 @@
 # 🏢 FanPit - AI-Powered Space Booking Platform
 
+<img width="1440" height="816" alt="Screenshot 2025-09-14 at 7 20 49 PM" src="https://github.com/user-attachments/assets/9a48df9a-35ca-4e7f-8116-247f832bdea9" />
+<img width="1440" height="813" alt="Screenshot 2025-09-14 at 7 21 10 PM" src="https://github.com/user-attachments/assets/2ad7637f-0b91-4f30-b0b8-fdc296ffc6a1" />
+<img width="1439" height="807" alt="Screenshot 2025-09-14 at 7 21 26 PM" src="https://github.com/user-attachments/assets/3bb50fd5-968c-4fbb-a25d-ae4f9e298d75" />
+
+
+
 <div align="center">
 
 ![FanPit Logo](https://via.placeholder.com/400x120/4F46E5/FFFFFF?text=FanPit)
