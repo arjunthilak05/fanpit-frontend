@@ -19,7 +19,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "https://your-backend-app.onrender.com/api/v1/:path*"
+      "destination": "https://fanpit-backend-yf2t.onrender.com/api/v1/:path*"
     }
   ]
 }
