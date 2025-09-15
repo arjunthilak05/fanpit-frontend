@@ -56,6 +56,7 @@ const daysOfWeek = [
 
 export default function AddSpaceForm() {
   const { user, isLoading: authLoading } = useAuth()
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
 
   // Show loading while checking authentication
@@ -123,8 +124,6 @@ export default function AddSpaceForm() {
     // Images
     images: [] as File[],
   })
-
-  const router = useRouter()
 
   const handleLogout = () => {
     console.log("Logging out...")
