@@ -2,6 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+
+// Prevent static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
 import { Header } from "@/components/layout/header"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Button } from "@/components/ui/button"
@@ -55,8 +58,32 @@ const daysOfWeek = [
 ]
 
 export default function AddSpacePage() {
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  // Redirect if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Please log in to continue</p>
+          <Button onClick={() => router.push('/auth')}>
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [success, setSuccess] = useState(false)
