@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { getApiUrl } from '@/lib/config'
+import apiClient from '@/lib/api/client'
 
 export interface User {
   id: string
@@ -70,27 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      const response = await fetch(getApiUrl('/auth/profile'), {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        const userData = await response.json()
-        setUser(userData.data || userData)
-      } else if (response.status === 401) {
-        // Token is invalid, try refresh
-        try {
-          await refreshToken()
-        } catch (refreshError) {
-          // Refresh failed, clear tokens and continue as logged out
-          localStorage.removeItem('accessToken')
-          localStorage.removeItem('refreshToken')
-          setUser(null)
-        }
-      }
+      const userData = await apiClient.get('/auth/me')
+      setUser(userData.data || userData)
     } catch (error) {
       console.error('Auth check failed:', error)
       localStorage.removeItem('accessToken')
@@ -106,22 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true)
       setError(null)
 
-      const response = await fetch(getApiUrl('/auth/login'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, role }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        const errorMessage = errorData.message || 'Login failed'
-        setError(errorMessage)
-        throw new Error(errorMessage)
-      }
-
-      const { user, accessToken, refreshToken } = await response.json()
+      const { user, accessToken, refreshToken } = await apiClient.post('/auth/login', { email, password, role })
 
       localStorage.setItem('accessToken', accessToken)
       localStorage.setItem('refreshToken', refreshToken)
@@ -154,22 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true)
       setError(null)
 
-      const response = await fetch(getApiUrl('/auth/register'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        const errorMessage = errorData.message || 'Registration failed'
-        setError(errorMessage)
-        throw new Error(errorMessage)
-      }
-
-      const { user, accessToken, refreshToken } = await response.json()
+      const { user, accessToken, refreshToken } = await apiClient.post('/auth/register', userData)
 
       localStorage.setItem('accessToken', accessToken)
       localStorage.setItem('refreshToken', refreshToken)
@@ -190,14 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const refreshToken = localStorage.getItem('refreshToken')
 
       if (refreshToken) {
-        await fetch(getApiUrl('/auth/logout'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-          body: JSON.stringify({ refreshToken }),
-        })
+        await apiClient.post('/auth/logout', { refreshToken })
       }
     } catch (error) {
       console.error('Logout error:', error)
@@ -216,19 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('No refresh token')
       }
 
-      const response = await fetch(getApiUrl('/auth/refresh'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Token refresh failed')
-      }
-
-      const { accessToken } = await response.json()
+      const { accessToken } = await apiClient.post('/auth/refresh', { refreshToken })
       localStorage.setItem('accessToken', accessToken)
     } catch (error) {
       console.error('Token refresh error:', error)
@@ -241,21 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = async (data: Partial<User>) => {
     try {
-      const response = await fetch(getApiUrl('/auth/profile'), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Profile update failed')
-      }
-
-      const updatedUser = await response.json()
+      const updatedUser = await apiClient.put('/users/me', data)
       setUser(updatedUser.data || updatedUser)
     } catch (error) {
       console.error('Profile update error:', error)
@@ -265,18 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const forgotPassword = async (email: string) => {
     try {
-      const response = await fetch(getApiUrl('/auth/forgot-password'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Password reset request failed')
-      }
+      return await apiClient.post('/auth/forgot-password', { email })
     } catch (error) {
       console.error('Forgot password error:', error)
       throw error
@@ -285,18 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPassword = async (token: string, newPassword: string) => {
     try {
-      const response = await fetch(getApiUrl('/auth/reset-password'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, newPassword }),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Password reset failed')
-      }
+      return await apiClient.post('/auth/reset-password', { token, newPassword })
     } catch (error) {
       console.error('Password reset error:', error)
       throw error

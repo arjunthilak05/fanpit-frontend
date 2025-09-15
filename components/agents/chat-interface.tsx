@@ -20,6 +20,58 @@ import {
 import { cn } from '@/lib/utils'
 import { getApiUrl } from '@/lib/config'
 
+// Space data for demo tiles
+const demoSpaces = [
+  {
+    id: '1',
+    name: 'Modern Co-working Hub',
+    location: 'Mumbai, Maharashtra',
+    price: 500,
+    capacity: 50,
+    amenities: ['WiFi', 'Coffee', 'Projector', 'AC'],
+    image: '/public/modern-coworking-space.png',
+    rating: 4.5,
+    reviews: 128,
+    type: 'Co-working'
+  },
+  {
+    id: '2',
+    name: 'Business Conference Center',
+    location: 'Mumbai, Maharashtra',
+    price: 800,
+    capacity: 100,
+    amenities: ['AV Setup', 'Catering', 'Parking', 'Stage'],
+    image: '/public/tech-conference-hall.png',
+    rating: 4.8,
+    reviews: 89,
+    type: 'Conference'
+  },
+  {
+    id: '3',
+    name: 'Creative Event Space',
+    location: 'Mumbai, Maharashtra',
+    price: 600,
+    capacity: 75,
+    amenities: ['Natural Light', 'Sound System', 'Bar', 'Decor'],
+    image: '/public/creative-event-space.jpg',
+    rating: 4.6,
+    reviews: 156,
+    type: 'Event Space'
+  },
+  {
+    id: '4',
+    name: 'Premium Meeting Room',
+    location: 'Mumbai, Maharashtra',
+    price: 400,
+    capacity: 20,
+    amenities: ['WiFi', 'Projector', 'Whiteboard', 'Coffee'],
+    image: '/public/casual-meetup-lounge.jpg',
+    rating: 4.4,
+    reviews: 67,
+    type: 'Meeting Room'
+  }
+]
+
 interface Message {
   id: string
   role: 'user' | 'assistant'
@@ -38,6 +90,8 @@ interface Message {
     response_time_ms: number
     model_used: string
   }
+  spaces?: typeof demoSpaces
+  showTiles?: boolean
 }
 
 interface ChatInterfaceProps {
@@ -99,7 +153,7 @@ export function ChatInterface({ className, onActionClick }: ChatInterfaceProps) 
     setIsLoading(true)
 
     try {
-      const response = await fetch(getApiUrl('/agents/chat'), {
+      const response = await fetch('/api/agents/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,8 +219,20 @@ export function ChatInterface({ className, onActionClick }: ChatInterfaceProps) 
     if (onActionClick) {
       onActionClick(action)
     } else {
-      // Default action handling
-      setInputValue(`Please help me with: ${action.label}`)
+      // Enhanced default action handling
+      if (action.type === 'browse_spaces') {
+        // Navigate to spaces page
+        window.location.href = '/'
+      } else if (action.type === 'start_booking') {
+        // Navigate to a sample space booking
+        window.location.href = '/spaces/1/book'
+      } else if (action.type === 'get_help') {
+        // Add a helpful message
+        setInputValue("I need help with using the platform")
+        sendMessage()
+      } else {
+        setInputValue(`Please help me with: ${action.label}`)
+      }
       inputRef.current?.focus()
     }
   }
@@ -283,6 +349,94 @@ export function ChatInterface({ className, onActionClick }: ChatInterfaceProps) 
                           {action.label}
                         </Button>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Space Tiles */}
+                  {message.spaces && message.showTiles && (
+                    <div className="mt-4 space-y-4">
+                      <div className="text-sm text-muted-foreground font-medium">
+                        🏢 Available Spaces in Mumbai
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                        {message.spaces.map((space) => (
+                          <Card key={space.id} className="hover:shadow-lg transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                {/* Space Image */}
+                                <div className="w-full h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+                                  <span className="text-2xl">{space.type === 'Co-working' ? '🏢' : space.type === 'Conference' ? '🎯' : space.type === 'Event Space' ? '🎨' : '🏠'}</span>
+                                </div>
+
+                                {/* Space Details */}
+                                <div>
+                                  <h3 className="font-semibold text-lg">{space.name}</h3>
+                                  <p className="text-sm text-muted-foreground">{space.location}</p>
+                                </div>
+
+                                {/* Rating and Reviews */}
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-yellow-500">⭐</span>
+                                    <span className="text-sm font-medium">{space.rating}</span>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">
+                                    ({space.reviews} reviews)
+                                  </span>
+                                </div>
+
+                                {/* Price */}
+                                <div className="flex items-center justify-between">
+                                  <div className="text-2xl font-bold text-primary">
+                                    ₹{space.price}
+                                    <span className="text-sm font-normal text-muted-foreground">/hour</span>
+                                  </div>
+                                  <Badge variant="outline">{space.type}</Badge>
+                                </div>
+
+                                {/* Amenities */}
+                                <div className="flex flex-wrap gap-1">
+                                  {space.amenities.slice(0, 3).map((amenity, index) => (
+                                    <Badge key={index} variant="secondary" className="text-xs">
+                                      {amenity}
+                                    </Badge>
+                                  ))}
+                                  {space.amenities.length > 3 && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      +{space.amenities.length - 3} more
+                                    </Badge>
+                                  )}
+                                </div>
+
+                                {/* Capacity */}
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <span>👥</span>
+                                  <span>Up to {space.capacity} people</span>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-2 pt-2">
+                                  <Button
+                                    size="sm"
+                                    className="flex-1"
+                                    onClick={() => setInputValue(`I want to book ${space.name}`)}
+                                  >
+                                    View Details
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={() => setInputValue(`Book ${space.name} for tomorrow`)}
+                                  >
+                                    Quick Book
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

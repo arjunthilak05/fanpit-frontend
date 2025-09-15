@@ -79,7 +79,7 @@ export function PaymentSuccess({ bookingData, paymentData }: PaymentSuccessProps
             <div>
               <span className="text-muted-foreground">Date & Time:</span>
               <p className="font-medium mt-1">
-                {new Date(bookingData.booking.bookingDate).toLocaleDateString()} at {bookingData.booking.timeSlot.time}
+                {new Date(bookingData.booking.bookingDate).toLocaleDateString()} at {bookingData.booking.timeSlot?.time || 'TBD'}
               </p>
             </div>
             <div>

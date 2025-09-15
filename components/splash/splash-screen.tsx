@@ -307,3 +307,5 @@ export function SplashScreen({ onClose, onStartChat }: SplashScreenProps) {
     </AnimatePresence>
   )
 }
+
+

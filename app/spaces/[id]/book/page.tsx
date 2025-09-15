@@ -49,6 +49,24 @@ const handleAuthClick = () => {
 
 export default function BookSpacePage() {
   const params = useParams()
+  const spaceId = Array.isArray(params.id) ? params.id[0] : params.id
+  
+  // Add safety check for spaceId
+  if (!spaceId) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Invalid Space ID</h1>
+            <Link href="/spaces">
+              <Button>Browse Spaces</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
   const [user, setUser] = useState<any>(null) // TODO: Replace with actual auth state
   const [currentStep, setCurrentStep] = useState<"calendar" | "details" | "payment" | "success">("calendar")
   const [selectedDate, setSelectedDate] = useState<Date>()
@@ -101,7 +119,8 @@ export default function BookSpacePage() {
   }
 
   const calculateTotal = () => {
-    const basePrice = selectedTimeSlot?.price || 0
+    // Ensure we have valid numeric price
+    const basePrice = Number(selectedTimeSlot?.price) || mockSpace.pricing.baseRate || 500
     const subtotal = basePrice * duration
     const promoDiscount = appliedPromoCode
       ? appliedPromoCode.type === "percentage"
@@ -109,12 +128,12 @@ export default function BookSpacePage() {
         : appliedPromoCode.discount
       : 0
     const taxes = (subtotal - promoDiscount) * 0.18 // 18% GST
-    return subtotal - promoDiscount + taxes
+    return Math.round((subtotal - promoDiscount + taxes) * 100) / 100 // Round to 2 decimal places
   }
 
   const bookingData = {
     space: mockSpace,
-    selectedDate: selectedDate!,
+    selectedDate: selectedDate || new Date(),
     selectedTimeSlot,
     duration,
     customerDetails: bookingFormData,
@@ -131,7 +150,7 @@ export default function BookSpacePage() {
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <div className="mb-6">
-          <Link href={`/spaces/${params.id}`}>
+          <Link href={`/spaces/${spaceId}`}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Space Details
@@ -271,7 +290,7 @@ export default function BookSpacePage() {
         {currentStep === "details" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <BookingForm onSubmit={handleBookingSubmit} isLoading={isLoading} />
+              <BookingForm spaceId={spaceId} onSuccess={handleBookingSubmit} isLoading={isLoading} />
             </div>
             <div>
               <BookingSummary

@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import { FileUpload } from "@/components/ui/file-upload"
 import {
   MapPin,
   Users,
@@ -32,14 +33,9 @@ import {
   Loader2,
   CheckCircle
 } from "lucide-react"
-
-// Mock data - replace with actual API calls
-const mockUser = {
-  id: "1",
-  name: "John Doe",
-  email: "john@example.com",
-  role: "brand_owner"
-}
+import { useAuth } from "@/hooks/useAuth"
+import { SpacesService } from "@/lib/api/spaces"
+import { toast } from "sonner"
 
 const amenitiesList = [
   { id: 'wifi', label: 'WiFi', icon: Wifi },
@@ -59,11 +55,12 @@ const daysOfWeek = [
 ]
 
 export default function AddSpacePage() {
-  const [user] = useState(mockUser)
+  const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [success, setSuccess] = useState(false)
+  const [uploadedImages, setUploadedImages] = useState<string[]>([])
 
   const [spaceData, setSpaceData] = useState({
     // Basic Info
@@ -159,18 +156,45 @@ export default function AddSpacePage() {
     setErrors({})
 
     try {
-      // In a real implementation, you'd submit to API
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API call
+      const spacePayload = {
+        name: spaceData.name,
+        description: spaceData.description,
+        type: spaceData.category,
+        capacity: parseInt(spaceData.capacity),
+        address: {
+          street: spaceData.street,
+          city: spaceData.city,
+          state: spaceData.state,
+          zipCode: spaceData.zipCode,
+          country: 'India',
+          coordinates: {
+            lat: 0,
+            lng: 0
+          }
+        },
+        amenities: spaceData.amenities,
+        pricingRules: [],
+        businessHours: [],
+        images: uploadedImages,
+        metadata: {},
+        isPublished: true,
+        status: 'active'
+      }
+
+      await SpacesService.createSpace(spacePayload)
       setSuccess(true)
+      toast.success("Space created successfully!")
 
       // Redirect after success
       setTimeout(() => {
         router.push('/dashboard/brand-owner/spaces')
       }, 2000)
     } catch (error: any) {
+      console.error('Failed to create space:', error)
       setErrors({
-        submit: error.message || "Failed to create space. Please try again."
+        submit: error.response?.data?.message || error.message || "Failed to create space. Please try again."
       })
+      toast.error("Failed to create space")
     } finally {
       setIsLoading(false)
     }
@@ -205,19 +229,34 @@ export default function AddSpacePage() {
     }))
   }
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    setSpaceData(prev => ({
-      ...prev,
-      images: [...prev.images, ...files].slice(0, 10) // Max 10 images
-    }))
+  const handleImageUpload = async (files: File[]) => {
+    try {
+      // For now, create object URLs for preview
+      const imageUrls = files.map(file => URL.createObjectURL(file))
+      setUploadedImages(prev => [...prev, ...imageUrls])
+      toast.success(`Successfully uploaded ${files.length} image(s)`)
+    } catch (error) {
+      toast.error("Failed to upload images")
+      throw error
+    }
   }
 
-  const removeImage = (index: number) => {
-    setSpaceData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }))
+  const handleImageDelete = async (index: number) => {
+    try {
+      const newImages = [...uploadedImages]
+      const deletedUrl = newImages.splice(index, 1)[0]
+
+      // Revoke object URL
+      if (deletedUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(deletedUrl)
+      }
+
+      setUploadedImages(newImages)
+      toast.success("Image deleted successfully")
+    } catch (error) {
+      toast.error("Failed to delete image")
+      throw error
+    }
   }
 
   const steps = [
@@ -674,49 +713,16 @@ export default function AddSpacePage() {
                   <CardTitle>Images & Media</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="images">Upload Images</Label>
-                      <Input
-                        id="images"
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="mt-2"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Upload up to 10 images. Supported formats: JPG, PNG, WebP. Max size: 10MB each.
-                      </p>
-                    </div>
-
-                    {/* Uploaded Images Preview */}
-                    {spaceData.images.length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {spaceData.images.map((file, index) => (
-                          <div key={index} className="relative group">
-                            <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={`Upload ${index + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <button
-                              onClick={() => removeImage(index)}
-                              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="text-sm text-muted-foreground">
-                      {spaceData.images.length} of 10 images uploaded
-                    </div>
-                  </div>
+                  <FileUpload
+                    onUpload={handleImageUpload}
+                    onDelete={handleImageDelete}
+                    existingFiles={uploadedImages}
+                    maxFiles={10}
+                    maxFileSize={5}
+                    accept="image/*"
+                    label="Upload Space Images"
+                    description="Add photos of your space (max 10 images, 5MB each)"
+                  />
                 </CardContent>
               </Card>
             )}

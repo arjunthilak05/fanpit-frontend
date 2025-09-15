@@ -47,7 +47,7 @@ export class PaymentsService {
         amount: number;
         currency: string;
         key: string;
-      }>>('/payments/order', orderData);
+      }>>('/payments/create-order', orderData);
     } catch (error) {
       throw PaymentsService.handleError(error);
     }
@@ -190,9 +190,34 @@ export class PaymentsService {
         failedPayments: number;
         refundedAmount: number;
         todayRevenue: number;
-      }>>('/payments/stats');
+      }>>('/payments/stats/summary');
     } catch (error) {
       throw PaymentsService.handleError(error);
+    }
+  }
+
+  /**
+   * Get simple payment stats for admin dashboard
+   */
+  static async getStats(): Promise<{
+    totalRevenue: number;
+    monthlyRevenue: number;
+    revenueGrowth: number;
+  }> {
+    try {
+      const response = await apiClient.get<ApiResponse<{
+        totalRevenue: number;
+        monthlyRevenue: number;
+        revenueGrowth: number;
+      }>>('/payments/stats/summary');
+      return response.data;
+    } catch (error) {
+      // Return default values if API fails
+      return {
+        totalRevenue: 0,
+        monthlyRevenue: 0,
+        revenueGrowth: 0
+      };
     }
   }
 

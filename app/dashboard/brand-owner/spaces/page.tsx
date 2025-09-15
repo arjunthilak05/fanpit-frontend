@@ -1,99 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { SpaceList } from "@/components/spaces/space-list"
 import { SpaceForm } from "@/components/spaces/space-form"
-
-// Mock data - replace with actual API calls
-const mockSpaces = [
-  {
-    id: "1",
-    name: "Modern Co-working Hub",
-    description: "A sleek and modern co-working space perfect for professionals and teams.",
-    address: {
-      street: "123 Business District",
-      city: "Mumbai",
-      state: "Maharashtra",
-      zipCode: "400001",
-      coordinates: [19.076, 72.8777],
-    },
-    capacity: 50,
-    category: "business",
-    amenities: ["wifi", "coffee", "projector", "ac"],
-    images: ["/modern-coworking-space.png"],
-    pricing: {
-      type: "paid",
-      baseRate: 500,
-      rateType: "hourly",
-      peakMultiplier: 1.5,
-      timeBlocks: [
-        { id: 1, hours: "4", price: "1800" },
-        { id: 2, hours: "8", price: "3200" },
-      ],
-      monthlyPass: 15000,
-      promoCodes: [{ id: 1, code: "WELCOME10", discount: "10", type: "percentage" }],
-    },
-    status: "active",
-    rating: 4.8,
-  },
-  {
-    id: "2",
-    name: "Creative Event Space",
-    description: "Perfect for creative events, workshops, and artistic gatherings.",
-    address: {
-      street: "456 Arts Quarter",
-      city: "Mumbai",
-      state: "Maharashtra",
-      zipCode: "400050",
-      coordinates: [19.0596, 72.8295],
-    },
-    capacity: 100,
-    category: "entertainment",
-    amenities: ["sound", "projector", "wifi", "parking"],
-    images: ["/creative-event-space.jpg"],
-    pricing: {
-      type: "paid",
-      baseRate: 2000,
-      rateType: "daily",
-      peakMultiplier: 1.3,
-      timeBlocks: [],
-      monthlyPass: 0,
-      promoCodes: [],
-    },
-    status: "active",
-    rating: 4.9,
-  },
-  {
-    id: "3",
-    name: "Community Meetup Lounge",
-    description: "A cozy space for community meetups and casual gatherings.",
-    address: {
-      street: "789 Community Center",
-      city: "Mumbai",
-      state: "Maharashtra",
-      zipCode: "400070",
-      coordinates: [19.1136, 72.8697],
-    },
-    capacity: 30,
-    category: "meetup",
-    amenities: ["wifi", "coffee"],
-    images: ["/casual-meetup-lounge.jpg"],
-    pricing: {
-      type: "free",
-    },
-    status: "inactive",
-    rating: 4.6,
-  },
-]
+import { SpacesService } from "@/lib/api/spaces"
+import { useAuth } from "@/hooks/useAuth"
+import { toast } from "sonner"
 
 export default function BrandOwnerSpacesPage() {
-  const [spaces, setSpaces] = useState(mockSpaces)
+  const { user } = useAuth()
+  const router = useRouter()
+  const [spaces, setSpaces] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [currentView, setCurrentView] = useState<"list" | "form">("list")
   const [editingSpace, setEditingSpace] = useState<any>(null)
 
+  useEffect(() => {
+    loadSpaces()
+  }, [])
+
+  const loadSpaces = async () => {
+    try {
+      setIsLoading(true)
+      const mySpaces = await SpacesService.getMySpaces()
+      setSpaces(mySpaces)
+    } catch (error: any) {
+      console.error('Failed to load spaces:', error)
+      toast.error('Failed to load spaces')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleAddSpace = () => {
-    setEditingSpace(null)
-    setCurrentView("form")
+    router.push('/dashboard/brand-owner/spaces/new')
   }
 
   const handleEditSpace = (space: any) => {
@@ -101,37 +42,61 @@ export default function BrandOwnerSpacesPage() {
     setCurrentView("form")
   }
 
-  const handleDeleteSpace = (spaceId: string) => {
-    if (confirm("Are you sure you want to delete this space?")) {
+  const handleDeleteSpace = async (spaceId: string) => {
+    if (!confirm("Are you sure you want to delete this space? This action cannot be undone.")) {
+      return
+    }
+
+    try {
+      await SpacesService.deleteSpace(spaceId)
       setSpaces((prev) => prev.filter((space) => space.id !== spaceId))
+      toast.success("Space deleted successfully")
+    } catch (error: any) {
+      console.error('Failed to delete space:', error)
+      toast.error(error.message || "Failed to delete space")
     }
   }
 
   const handleViewSpace = (space: any) => {
-    // TODO: Navigate to space detail view
-    console.log("View space:", space)
+    router.push(`/dashboard/brand-owner/spaces/${space.id}`)
   }
 
-  const handleFormSubmit = (formData: any) => {
-    if (editingSpace) {
-      // Update existing space
-      setSpaces((prev) => prev.map((space) => (space.id === editingSpace.id ? { ...space, ...formData } : space)))
-    } else {
-      // Add new space
-      const newSpace = {
-        ...formData,
-        id: Date.now().toString(),
-        rating: 0,
+  const handleFormSubmit = async (formData: any) => {
+    try {
+      if (editingSpace) {
+        // Update existing space
+        const updatedSpace = await SpacesService.updateSpace(editingSpace.id, formData)
+        setSpaces((prev) => prev.map((space) =>
+          space.id === editingSpace.id ? updatedSpace : space
+        ))
+        toast.success("Space updated successfully")
+      } else {
+        // Add new space
+        const newSpace = await SpacesService.createSpace(formData)
+        setSpaces((prev) => [...prev, newSpace])
+        toast.success("Space created successfully")
       }
-      setSpaces((prev) => [...prev, newSpace])
+      setCurrentView("list")
+      setEditingSpace(null)
+    } catch (error: any) {
+      console.error('Failed to save space:', error)
+      toast.error(error.message || "Failed to save space")
     }
-    setCurrentView("list")
-    setEditingSpace(null)
   }
 
   const handleFormCancel = () => {
     setCurrentView("list")
     setEditingSpace(null)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -36,7 +36,7 @@ export function BookingSummary({
   const [promoCode, setPromoCode] = useState("")
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
-  const basePrice = selectedTimeSlot?.price || 0
+  const basePrice = Number(selectedTimeSlot?.price) || space?.pricing?.baseRate || 500
   const subtotal = basePrice * duration
   const promoDiscount = appliedPromoCode
     ? appliedPromoCode.type === "percentage"
@@ -44,7 +44,7 @@ export function BookingSummary({
       : appliedPromoCode.discount
     : 0
   const taxes = (subtotal - promoDiscount) * 0.18 // 18% GST
-  const total = subtotal - promoDiscount + taxes
+  const total = Math.round((subtotal - promoDiscount + taxes) * 100) / 100
 
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return

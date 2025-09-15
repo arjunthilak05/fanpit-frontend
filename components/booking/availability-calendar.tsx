@@ -34,11 +34,13 @@ export function AvailabilityCalendar({
       for (let hour = startHour; hour < endHour; hour++) {
         for (let minute = 0; minute < 60; minute += 30) {
           const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+          const priceValue = Math.floor(Math.random() * 500) + 200
           slots.push({
             id: `${hour}-${minute}`,
             time: timeString,
             available: Math.random() > 0.3, // Mock availability
-            price: `₹${Math.floor(Math.random() * 500) + 200}`, // Mock price
+            price: priceValue, // Numeric price
+            priceDisplay: `₹${priceValue}`, // Display price with currency
           })
         }
       }
@@ -126,7 +128,7 @@ export function AvailabilityCalendar({
                   <span className="font-semibold">{slot.time}</span>
                   <div className="flex items-center space-x-1 mt-1">
                     <IndianRupee className="h-3 w-3" />
-                    <span className="text-xs">{slot.price}</span>
+                    <span className="text-xs">{slot.priceDisplay}</span>
                   </div>
                   {isPeak && (
                     <Badge variant="secondary" className="text-xs mt-1">
