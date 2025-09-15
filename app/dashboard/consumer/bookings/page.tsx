@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,12 +15,39 @@ import { useAuth } from "@/hooks/useAuth"
 import { BookingsService } from "@/lib/api/bookings"
 import { toast } from "sonner"
 
+// Prevent static generation for this page since it requires authentication
+export const dynamic = 'force-dynamic'
+
 export default function ConsumerBookingsPage() {
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
+  const router = useRouter()
   const [bookings, setBookings] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("upcoming")
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  // Redirect if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Please log in to continue</p>
+          <Button onClick={() => router.push('/auth')}>
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     loadBookings()
