@@ -1,15 +1,18 @@
-// Simplified version to isolate the build issue
 'use client'
+
+import { Suspense } from 'react'
+import AddSpaceForm from './AddSpaceForm'
 
 export const dynamic = 'force-dynamic'
 
 export default function AddSpacePage() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">Add New Space</h1>
-        <p className="text-muted-foreground">Page temporarily simplified for debugging</p>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
-    </div>
+    }>
+      <AddSpaceForm />
+    </Suspense>
   )
 }
