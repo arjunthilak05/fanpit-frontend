@@ -3,7 +3,7 @@
 <div align="center">
 
 **Backend Repository:** **[https://github.com/arjunthilak05/fanpit-backend](https://github.com/arjunthilak05/fanpit-backend)**
-**Frontend Link :** **[https://fanpit-backend-yf2t.onrender.com](https://fanpit-backend-yf2t.onrender.com)**
+**Frontend Link :** **[https://fanpit-frontend-kappa.vercel.app/](https://fanpit-frontend-kappa.vercel.app/)**
 
 
 
